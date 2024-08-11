@@ -1,34 +1,32 @@
 export function Add(numbers) {
-  if (numbers === "") return 0;
+  if (!numbers) return 0;
 
-  let delimiter = ",";
-  let sumOfNumbers = numbers;
+  //* Default delimiters
+  let delimiter = /,|\n/;
+  let stringNum = numbers;
 
-  //* Check if there is a custom delimiter
+  //* Check if the string starts with a custom delimiter declaration
   if (numbers.startsWith("//")) {
-    const delimitEndIdx = numbers.indexOf("\n");
-    //* Extract the custom delimiter
-    delimiter = numbers.substring(2, delimitEndIdx);
-    //* Extract the numbers part after the delimiter line
-    sumOfNumbers = numbers.substring(delimitEndIdx + 1);
+    const delimiterEndIdx = numbers.indexOf("\n");
+
+    //* Handle cases where delimiter might be multiple characters
+    delimiter = new RegExp(numbers.substring(2, delimiterEndIdx), "g");
+
+    //* Remove the delimiter declaration line and use the remaining part of the string
+    stringNum = numbers.substring(delimiterEndIdx + 1);
   }
 
-  //* Replace newline characters with the delimiter
-  sumOfNumbers = sumOfNumbers.replace(/\n/g, delimiter);
-
-  //* Split the string by the delimiter into an array of numbers
-  let numberArr = sumOfNumbers.split(delimiter);
+  //* Split numbers based on delimiters
+  const numArray = stringNum.split(delimiter).map(Number);
 
   //* Check for negative numbers
-  let negativeNumbers = numberArr.filter((num) => parseInt(num) < 0);
+  let negativeNumbers = numArray.filter((num) => parseInt(num) < 0);
   if (negativeNumbers.length > 0) {
     throw new Error(
       `negative numbers not allowed ${negativeNumbers.join(",")}`
     );
   }
 
-  //* Convert the array elements from strings to integers and sum them up
-  let sum = numberArr.reduce((acc, num) => acc + parseInt(num), 0);
-
-  return sum;
+  //* Return the sum
+  return numArray.reduce((acc, num) => acc + parseInt(num), 0);
 }
